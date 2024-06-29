@@ -6,6 +6,7 @@ import Notification from './components/Notification.vue'
 <template>
   <div class="grid grid-cols-[1fr_6fr] min-h-screen">
     <nav class="bg-stone-50 flex flex-col border-r">
+      <img src="./assets/logo.png" class="w-16 p-2 block absolute top-0 right-0" />
       <DocNavigation />
     </nav>
     <main class="mx-auto py-5 w-full">
