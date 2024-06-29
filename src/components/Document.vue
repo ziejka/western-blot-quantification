@@ -120,18 +120,22 @@ async function onUpdateDocumentName() {
     <div class="flex border rounded items-center relative" v-for="sample in samples">
       <p class="px-2">{{ sample.name.toString() }}</p>
       <span v-if="sample.is_reference"
-        class="absolute -top-2.5 -left-3 text-sky-600 font-bold border border-sky-300 bg-sky-100 px-1.5 text-sm rounded-full">R</span>
+        class="absolute -top-2.5 -left-3 text-violet-600 font-bold border border-violet-300 bg-violet-100 px-1.5 text-sm rounded-full">R</span>
       <Button text="❌" button-type="danger" @click="deleteSample(sample.name.toString())" />
     </div>
     <Button text="➕" button-type="primary" @click="showNewSampleForm" />
   </section>
 
 
-  <section v-if="isNewSample" class="px-5 py-4 border-t">
-    <AddSampleForm :membrane_title="title" @sample-added="onSampleAdded" @close="onAddSampleClose" />
-  </section>
+  <Transition>
+    <section v-if="isNewSample" class="px-5 py-4 border-t">
+      <AddSampleForm :membrane_title="title" @sample-added="onSampleAdded" @close="onAddSampleClose" />
+    </section>
+  </Transition>
 
-  <section v-if="isPreview" class="px-5 py-4 bg-stone-50 border-t">
-    <Preview :samples="samples" />
-  </section>
+  <Transition>
+    <section v-if="isPreview" class="px-5 py-4 bg-stone-50 border-t">
+      <Preview :samples="samples" />
+    </section>
+  </Transition>
 </template>

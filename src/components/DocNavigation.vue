@@ -23,7 +23,7 @@ function closeModal() {
 </script>
 
 <template>
-  <button @click="onAddClick" class="py-2 px-2 bg-sky-100 hover:bg-sky-200 transition-colors border-t text-left">Add new doc</button>
+  <button @click="onAddClick" class="py-2 px-2 bg-violet-300 hover:bg-violet-400 rounded transition-colors text-left">➕ New Document</button>
   <NavLink to="/" text="All docs" class="font-bold" />
   <NavLink v-for="doc in docs" :key="doc" :to="`/${doc}`" :text="doc" />
 

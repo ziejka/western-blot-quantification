@@ -94,7 +94,7 @@ async function getSamplesNames() {
 
     <div class="flex gap-2">
       <Button text="Add" button-type="primary" type="submit" />
-      <Button text="Cancel" button-type="secondary" type="submit" @click="$emit('close')" />
+      <Button text="Cancel" button-type="secondary" @click="$emit('close')" />
     </div>
   </form>
   <p class="mt-6">
