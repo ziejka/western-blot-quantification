@@ -12,7 +12,7 @@ function onFormSubmit() {
 </script>
 
 <template>
-  <section class="flex gap-2 px-5 pb-4">
+  <section class="flex gap-2 px-5 pb-7">
     <h1 class="text-2xl font-bold">List of documents</h1>
   </section>
 

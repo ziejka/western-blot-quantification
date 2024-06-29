@@ -104,7 +104,7 @@ async function onUpdateDocumentName() {
 </script>
 
 <template>
-  <section class="flex gap-2 px-5 pb-4">
+  <section class="flex gap-2 px-5 pb-5">
     <h1 v-if="!isDocEditVisible" class="text-2xl font-bold mr-4" type="text">📄 {{ title }}</h1>
     <input v-if="isDocEditVisible" class="text-2xl font-bold mr-4 border" type="text" v-model="title" />
     <Button v-if="isDocEditVisible" text="Change name" button-type="secondary" @click="onUpdateDocumentName" />

@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use serde::{Deserialize, Serialize};
 
 use crate::SampleData;
@@ -12,6 +14,12 @@ pub struct Sample {
     pub blank: Vec<f32>,
     pub norm_by_reference: Vec<f32>,
     pub normalized: Vec<f32>,
+    #[serde(default = "control_indexes_default")]
+    pub control_indexes: HashSet<usize>,
+}
+
+fn control_indexes_default() -> HashSet<usize> {
+    HashSet::from([0])
 }
 
 impl Sample {
@@ -31,10 +39,20 @@ impl Sample {
     }
 
     pub fn calculate_normalized(&mut self) {
-        if let Some(control) = self.norm_by_reference.first() {
-            self.norm_by_reference
-                .iter()
-                .for_each(|&norm_by_ref| self.normalized.push(norm_by_ref / *control));
+        let mut control_indexes_iterator = self.control_indexes.iter();
+        let mut next_control_index = control_indexes_iterator.next();
+        let mut control: &f32 = &0.0;
+
+        for (index, value) in self.norm_by_reference.iter().enumerate() {
+            if next_control_index.is_some() && index == *next_control_index.unwrap() {
+                control = self
+                    .norm_by_reference
+                    .get(*next_control_index.expect("should contain index"))
+                    .expect("should contain norm value");
+
+                next_control_index = control_indexes_iterator.next();
+            }
+            self.normalized.push(value / control)
         }
     }
 }
@@ -78,6 +96,7 @@ impl TryFrom<SampleData> for Sample {
             blank: vec![],
             norm_by_reference: vec![],
             normalized: vec![],
+            control_indexes: HashSet::from([0]),
         })
     }
 }
@@ -108,6 +127,7 @@ mod test {
             blank: vec![],
             norm_by_reference: vec![],
             normalized: vec![],
+            control_indexes: HashSet::from([0]),
         };
 
         assert_eq!(Ok(result), input.try_into());
