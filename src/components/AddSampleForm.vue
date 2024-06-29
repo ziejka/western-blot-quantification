@@ -45,8 +45,6 @@ function handleClickOutside(event: MouseEvent) {
 }
 
 function setSampleName(name: string) {
-  console.log(name);
-
   sampleData.value.name = name;
   isHintVisible.value = false;
 }

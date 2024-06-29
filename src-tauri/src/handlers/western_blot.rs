@@ -61,20 +61,29 @@ pub fn delete_sample(state: tauri::State<AppState>, title: &str, name: &str) -> 
 }
 
 #[tauri::command]
-pub fn update_sample_data(
+pub fn update_document_name(
     state: tauri::State<AppState>,
-    sample_data: SampleData,
+    old_title: &str,
+    new_title: &str,
 ) -> Result<(), String> {
-    let mut sample: Sample = sample_data.try_into()?;
-    sample.calculate_blank();
+    let mut samples = state.samples.lock().expect("lock poisoned");
+    let mut document_names = state.document_names.lock().expect("lock poisoned");
 
-    let mut samples = state.samples.lock().map_err(|e| e.to_string())?;
-    let index = samples
+    println!("{new_title}");
+    if document_names.contains(new_title) {
+        return Err("Document with that title already exist".to_string());
+    }
+
+    document_names.remove(old_title);
+    document_names.insert(new_title.to_string());
+
+    save_document_names(&document_names)?;
+
+    samples
         .iter_mut()
-        .position(|s| s.name == sample.name && s.document_title == sample.document_title)
-        .ok_or("Sample for update not found")?;
+        .filter(|s| s.document_title == old_title)
+        .for_each(|s| s.document_title = new_title.to_string());
 
-    samples[index] = sample;
     save_samples_to_file(&samples)?;
     Ok(())
 }

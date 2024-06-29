@@ -27,7 +27,7 @@ fn main() {
             get_documents_names,
             add_document,
             get_sample_data,
-            update_sample_data,
+            update_document_name,
             delete_document,
             save_csv,
             delete_sample,

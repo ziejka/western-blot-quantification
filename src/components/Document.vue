@@ -5,21 +5,30 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { emitter } from '../emitter';
 import { Sample } from '../types';
+import { useDocumentList } from '../useDocumentList';
 import AddSampleForm from './AddSampleForm.vue';
 import Preview from './Preview.vue';
 import Button from './ui/Button.vue';
 
 const route = useRoute()
+const { updateDocumentName } = useDocumentList()
+
 const title = ref(route.params.id as string || '');
 const isNewSample = ref(false);
 const isPreview = ref(false);
+const isDocEditVisible = ref(false);
 const samples = ref<Sample[]>([]);
 
 onMounted(() => getSamples());
 watch(() => route.params.id, (newId) => {
   title.value = newId as string;
+  isDocEditVisible.value = false;
   getSamples();
 })
+
+function toggleEdit() {
+  isDocEditVisible.value = !isDocEditVisible.value
+}
 
 function showNewSampleForm() {
   isNewSample.value = true;
@@ -82,11 +91,25 @@ async function deleteSample(sampleName: string) {
     emitter.emit('error', String(e))
   }
 }
+
+async function onUpdateDocumentName() {
+  if (!route.params.id || !title.value) return;
+  try {
+    await updateDocumentName(route.params.id as string, title.value);
+    isDocEditVisible.value = false;
+  } catch (e) {
+    // noop
+  }
+}
 </script>
 
 <template>
   <section class="flex gap-2 px-5 pb-4">
-    <h1 class="text-2xl font-bold mr-4" type="text">📄 {{ title }}</h1>
+    <h1 v-if="!isDocEditVisible" class="text-2xl font-bold mr-4" type="text">📄 {{ title }}</h1>
+    <input v-if="isDocEditVisible" class="text-2xl font-bold mr-4 border" type="text" v-model="title" />
+    <Button v-if="isDocEditVisible" text="Change name" button-type="secondary" @click="onUpdateDocumentName" />
+    <Button text="✏️" button-type="secondary" @click="toggleEdit" />
+
     <Button v-if="!isPreview" text="Show Preview" button-type="primary" @click="togglePreview" />
     <Button v-if="isPreview" text="Close Preview" button-type="secondary" @click="togglePreview" />
     <Button text="Save as CSV" button-type="primary" @click="saveCSV" />
