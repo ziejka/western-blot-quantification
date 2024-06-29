@@ -96,7 +96,8 @@ async function deleteSample(sampleName: string) {
     <p>Added samples:</p>
     <div class="flex border rounded items-center relative" v-for="sample in samples">
       <p class="px-2">{{ sample.name.toString() }}</p>
-      <span v-if="sample.is_reference" class="absolute -top-2.5 -left-3 text-sky-600 font-bold border border-sky-300 bg-sky-100 px-1.5 text-sm rounded-full">R</span>
+      <span v-if="sample.is_reference"
+        class="absolute -top-2.5 -left-3 text-sky-600 font-bold border border-sky-300 bg-sky-100 px-1.5 text-sm rounded-full">R</span>
       <Button text="❌" button-type="danger" @click="deleteSample(sample.name.toString())" />
     </div>
     <Button text="➕" button-type="primary" @click="showNewSampleForm" />

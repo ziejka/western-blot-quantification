@@ -31,6 +31,7 @@ fn main() {
             delete_document,
             save_csv,
             delete_sample,
+            get_samples_names,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

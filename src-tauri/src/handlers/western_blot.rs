@@ -29,6 +29,12 @@ pub fn get_samples_by_title(state: tauri::State<AppState>, title: &str) -> Vec<S
 }
 
 #[tauri::command]
+pub fn get_samples_names(state: tauri::State<AppState>) -> HashSet<String> {
+    let samples = state.samples.lock().expect("lock poisoned");
+    samples.iter().map(|s| s.name.clone()).collect()
+}
+
+#[tauri::command]
 pub fn add_sample_data(
     state: tauri::State<AppState>,
     sample_data: SampleData,

@@ -27,7 +27,7 @@ function closeModal() {
   <NavLink to="/" text="All docs" class="font-bold" />
   <NavLink v-for="doc in docs" :key="doc" :to="`/${doc}`" :text="doc" />
 
-  <section v-if="isAddModalVisible" class="absolute w-screen h-screen">
+  <section v-if="isAddModalVisible" class="absolute w-screen h-screen z-10">
     <div class="absolute left-0 bg-stone-900 opacity-20 w-screen h-screen z-0" />
 
     <form
