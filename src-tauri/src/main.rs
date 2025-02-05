@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashSet, sync::Mutex};
+use std::sync::Mutex;
 
 use handlers::western_blot::*;
 use models::app_state::AppState;
@@ -12,8 +12,8 @@ mod models;
 mod persistance;
 
 fn main() {
-    let document_names = read_document_names().unwrap_or(HashSet::new());
-    let samples = read_samples().unwrap_or(Vec::new());
+    let document_names = read_document_names().unwrap_or_default();
+    let samples = read_samples().unwrap_or_default();
 
     tauri::Builder::default()
         .manage(AppState {
@@ -32,6 +32,7 @@ fn main() {
             save_csv,
             delete_sample,
             get_samples_names,
+            transform_to_table,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

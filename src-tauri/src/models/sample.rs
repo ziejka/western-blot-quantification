@@ -67,19 +67,19 @@ impl TryFrom<SampleData> for Sample {
             return Err("No experiment data");
         }
         for line in sd.values.trim().lines() {
-            let mut split_iter = line.split("\t");
+            let mut split_iter = line.split('\t');
 
             let area: f32 = split_iter
                 .nth(1)
                 .ok_or("No value for area")?
-                .replace(",", ".")
+                .replace(',', ".")
                 .parse::<f32>()
                 .map_err(|_| "area parse error")?;
 
             let mean_od: f32 = split_iter
                 .next()
                 .ok_or("No mean_od value")?
-                .replace(",", ".")
+                .replace(',', ".")
                 .parse()
                 .map_err(|_| "mean_od value parse error")?;
 
@@ -96,7 +96,7 @@ impl TryFrom<SampleData> for Sample {
             blank: vec![],
             norm_by_reference: vec![],
             normalized: vec![],
-            control_indexes: HashSet::from([0]),
+            control_indexes: sd.control_indexes,
         })
     }
 }
@@ -111,6 +111,7 @@ mod test {
             membrane_title: "membrane_title".into(),
             is_reference: false,
             name: "test".into(),
+            control_indexes: HashSet::from([0]),
             values: "
             1	454.667	29263.027	0	30142
 2	454.667	29263.027	0	30142

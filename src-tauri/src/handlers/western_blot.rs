@@ -16,6 +16,7 @@ pub struct SampleData {
     pub name: String,
     pub values: String,
     pub is_reference: bool,
+    pub control_indexes: HashSet<usize>,
 }
 
 #[tauri::command]
@@ -41,6 +42,7 @@ pub fn add_sample_data(
 ) -> Result<(), String> {
     let mut sample: Sample = sample_data.try_into()?;
     sample.calculate_blank();
+    println!("{:?}", sample.control_indexes.clone());
 
     let mut samples = state.samples.lock().expect("lock poisoned");
     samples.push(sample);
@@ -196,4 +198,21 @@ pub fn save_csv(state: tauri::State<AppState>, title: &str, path_str: &str) -> R
 #[tauri::command]
 pub fn get_documents_names(state: tauri::State<AppState>) -> HashSet<String> {
     state.document_names.lock().expect("lock poisoned").clone()
+}
+
+#[tauri::command]
+pub fn transform_to_table(val: &str) -> Result<Vec<(bool, &str, &str, &str)>, String> {
+    Ok(val
+        .lines()
+        .enumerate()
+        .map(|(index, line)| {
+            let parts: Vec<&str> = line.split('\t').collect();
+            let (name, area, mean_od) = match parts.as_slice() {
+                [name, area, mean_od, ..] => (*name, *area, *mean_od),
+                _ => ("", "", ""),
+            };
+
+            (index == 0, name, area, mean_od)
+        })
+        .collect())
 }

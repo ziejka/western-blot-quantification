@@ -2,7 +2,9 @@
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { invoke } from "@tauri-apps/api/tauri";
 import { emitter } from '../emitter'
-import Button from './ui/Button.vue'
+import Button from './ui/Button.vue';
+
+type ValueTableType = [boolean, string, string, string]
 
 const props = defineProps({
   membrane_title: {
@@ -10,10 +12,11 @@ const props = defineProps({
     required: true,
   }
 });
-
 const samplesName = ref<string[]>([]);
 const isHintVisible = ref(false);
+const isEditValues = ref(false);
 const sampleName = ref(null);
+const tableValues = ref<ValueTableType[]>([]);
 
 const filteredSamplesName = computed(() =>
   samplesName.value.filter(s => s.toLocaleLowerCase().includes(sampleData.value.name.toLocaleLowerCase()))
@@ -37,6 +40,18 @@ const sampleData = ref({
   values: '',
   is_reference: false,
 })
+const control_indexes = computed(() =>
+  tableValues.value.reduce((prev, arr, idx) => {
+    if (arr[0]) {
+      prev.push(idx);
+    }
+    return prev;
+  }, [] as number[])
+)
+
+function toggleIsEditValues() {
+  isEditValues.value = !isEditValues.value;
+}
 
 function handleClickOutside(event: MouseEvent) {
   if (event.target != sampleName.value) {
@@ -55,7 +70,7 @@ function showHints() {
 
 async function addExperimentData() {
   try {
-    await invoke("add_sample_data", { sampleData: sampleData.value });
+    await invoke("add_sample_data", { sampleData: {...sampleData.value, control_indexes: control_indexes.value} });
     emit('sample-added');
   } catch (e) {
     emitter.emit('error', String(e))
@@ -67,6 +82,16 @@ async function getSamplesNames() {
     samplesName.value = await invoke("get_samples_names");
   } catch (e) {
     // noop
+  }
+}
+
+async function transformToTable() {
+  try {
+    tableValues.value = await invoke('transform_to_table', { val: sampleData.value.values })
+    isEditValues.value = false;
+
+  } catch (e) {
+    emitter.emit('error', String(e))
   }
 }
 </script>
@@ -86,8 +111,30 @@ async function getSamplesNames() {
       </Transition>
     </div>
 
-    <label for="experimentData">Experiment data</label>
-    <textarea class="border h-48" v-model="sampleData.values" name="experimentData" />
+    <template v-if="tableValues.length == 0 || isEditValues">
+      <label for="experimentData">Experiment data</label>
+      <textarea class="border h-48" v-model="sampleData.values" name="experimentData" @focusout="transformToTable" />
+    </template>
+
+    <template v-if="!isEditValues && tableValues.length > 0">
+      <table class="w-fit">
+        <tbody>
+          <tr>
+            <td class="text-nowrap">Is Control</td>
+            <td>Name</td>
+            <td>Area</td>
+            <td>Mean OD</td>
+          </tr>
+          <tr v-for="v in tableValues" :class="v[0] ? 'bg-violet-100' : ''">
+            <td class="text-center"><input type="checkbox" v-model="v[0]" /></td>
+            <td>{{ v[1] }}</td>
+            <td>{{ v[2] }}</td>
+            <td>{{ v[3] }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <Button text="Edit" button-type="secondary" @click="toggleIsEditValues" class="h-fit" />
+    </template>
 
     <label for="isReference">Is reference</label>
     <input class="w-8 h-8" v-model="sampleData.is_reference" name="isReference" type="checkbox">
@@ -101,3 +148,13 @@ async function getSamplesNames() {
     {{ result }}
   </p>
 </template>
+
+<style scoped>
+table tr {
+  @apply border-b;
+}
+
+table tr td {
+  @apply px-2 py-1;
+}
+</style>
